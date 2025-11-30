@@ -1,0 +1,872 @@
+<!DOCTYPE html>
+<html lang="id" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RupaNusa Studio | Platform Digitalisasi Budaya</title>
+    
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
+    
+    <!-- FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- QRCode.js Library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+
+    <!-- Tailwind Config -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        earth: { 50: '#fbf7f3', 100: '#f5efe6', 200: '#e6dcd0', 300: '#d2c0ab', 400: '#a68a6d', 500: '#8c6b4a', 600: '#755438', 700: '#5e412f', 800: '#4e3629', 900: '#2b1c15' },
+                        terracotta: { 500: '#cc5833', 600: '#a84223' },
+                        nature: { 500: '#607d58', 600: '#4a6344' }
+                    },
+                    fontFamily: { sans: ['Inter', 'sans-serif'], serif: ['Playfair Display', 'serif'] }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body { background-color: #fbf7f3; }
+        .hero-pattern {
+            background-image: url('https://images.unsplash.com/photo-1628143836374-609872d8a558?q=80&w=2070&auto=format&fit=crop');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+        }
+        .text-shadow { text-shadow: 2px 2px 4px rgba(0,0,0,0.5); }
+        ::-webkit-scrollbar { width: 10px; }
+        ::-webkit-scrollbar-track { background: #f5efe6; }
+        ::-webkit-scrollbar-thumb { background: #8c6b4a; border-radius: 5px; }
+        .fade-in { animation: fadeIn 0.5s ease-in; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* Animation Classes */
+        .loader {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #cc5833; /* Terracotta */
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        
+        .checkmark {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: block;
+            stroke-width: 2;
+            stroke: #fff;
+            stroke-miterlimit: 10;
+            box-shadow: inset 0px 0px 0px #4bb71b;
+            animation: fill .4s ease-in-out .4s forwards, scale .3s ease-in-out .9s both;
+        }
+        .checkmark__circle { stroke-dasharray: 166; stroke-dashoffset: 166; stroke-width: 2; stroke-miterlimit: 10; stroke: #4bb71b; fill: none; animation: stroke 0.6s cubic-bezier(0.65, 0, 0.45, 1) forwards; }
+        .checkmark__check { transform-origin: 50% 50%; stroke-dasharray: 48; stroke-dashoffset: 48; animation: stroke 0.3s cubic-bezier(0.65, 0, 0.45, 1) 0.8s forwards; }
+        @keyframes stroke { 100% { stroke-dashoffset: 0; } }
+        @keyframes scale { 0%, 100% { transform: none; } 50% { transform: scale3d(1.1, 1.1, 1); } }
+        @keyframes fill { 100% { box-shadow: inset 0px 0px 0px 30px #4bb71b; } }
+
+        /* --- MARQUEE ANIMATION --- */
+        .marquee-container {
+            overflow: hidden;
+            white-space: nowrap;
+            position: relative;
+            mask-image: linear-gradient(to right, transparent, black 10%, black 90%, transparent);
+            -webkit-mask-image: linear-gradient(to right, transparent, black 10%, black 90%, transparent);
+        }
+        
+        .marquee-track {
+            display: flex;
+            gap: 2rem;
+            width: max-content;
+            animation: marquee 120s linear infinite;
+        }
+
+        .marquee-track:hover {
+            animation-play-state: paused;
+        }
+
+        @keyframes marquee {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-50%); }
+        }
+
+        /* --- NEW SERVICE CARD INTERACTION (FIXED) --- */
+        /* UPDATED: Bungkus dengan media query agar efek ini HANYA aktif di PC/Laptop (Mouse) */
+        /* Ini mencegah bug di HP dimana semua kartu jadi blur saat disentuh area kosongnya */
+        @media (hover: hover) {
+            /* Logic: Saat container di-hover, semua child (card) mengecil & redup */
+            .services-wrapper:hover .service-card {
+                transform: scale(0.95);
+                opacity: 0.4;
+                filter: blur(2px); /* Baris 153 yang bikin error di HP */
+            }
+
+            /* Logic: Saat card spesifik di-hover, dia membesar, jelas, & tidak blur */
+            .services-wrapper .service-card:hover {
+                transform: scale(1.1); /* Membesar */
+                opacity: 1;
+                filter: blur(0);
+                z-index: 20; /* Tampil di atas yang lain */
+                box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+            }
+        }
+        
+        /* Smooth transition untuk semua properti */
+        .service-card {
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+    </style>
+</head>
+<body class="text-earth-900 antialiased selection:bg-terracotta-500 selection:text-white">
+
+    <!-- Navbar Sticky -->
+    <nav id="navbar" class="fixed w-full z-50 transition-all duration-300 bg-transparent py-4">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center">
+                <div class="flex items-center">
+                    <a href="#" class="flex items-center gap-2">
+                        <div class="w-8 h-8 bg-terracotta-500 rounded-full flex items-center justify-center text-white font-serif font-bold text-lg">R</div>
+                        <span class="font-serif font-bold text-2xl tracking-wide text-earth-900" id="nav-logo-text">RupaNusa</span>
+                    </a>
+                </div>
+
+                <!-- Desktop Menu -->
+                <div class="hidden md:flex items-center space-x-8">
+                    <a href="#about" class="text-earth-800 hover:text-terracotta-500 font-medium transition">Tentang Kami</a>
+                    <a href="#services" class="text-earth-800 hover:text-terracotta-500 font-medium transition">Layanan</a>
+                    <a href="#testimonials" class="text-earth-800 hover:text-terracotta-500 font-medium transition">Testimoni</a>
+                    <a href="#team" class="text-earth-800 hover:text-terracotta-500 font-medium transition">Tim Founder</a>
+                    <button onclick="openConsultation()" class="bg-terracotta-500 hover:bg-terracotta-600 text-white px-6 py-2 rounded-full font-medium transition shadow-lg transform hover:-translate-y-0.5">
+                        Daftar Mitra
+                    </button>
+                </div>
+
+                <div class="md:hidden flex items-center">
+                    <button onclick="toggleMobileMenu()" class="text-earth-800 focus:outline-none">
+                        <i class="fas fa-bars text-2xl"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div id="mobile-menu" class="hidden md:hidden bg-earth-50 absolute w-full shadow-md border-t border-earth-200">
+            <div class="px-4 pt-2 pb-4 space-y-2 flex flex-col">
+                <a href="#about" class="block py-2 px-4 hover:bg-earth-100 rounded text-earth-800">Tentang Kami</a>
+                <a href="#services" class="block py-2 px-4 hover:bg-earth-100 rounded text-earth-800">Layanan</a>
+                <a href="#testimonials" class="block py-2 px-4 hover:bg-earth-100 rounded text-earth-800">Testimoni</a>
+                <a href="#team" class="block py-2 px-4 hover:bg-earth-100 rounded text-earth-800">Tim Founder</a>
+                <button onclick="openConsultation()" class="w-full text-left py-2 px-4 text-terracotta-600 font-bold">Daftar Mitra</button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="relative h-screen flex items-center justify-center hero-pattern">
+        <div class="absolute inset-0 bg-earth-900/60 z-10"></div>
+        <div class="relative z-20 text-center px-4 max-w-4xl mx-auto text-white">
+            <span class="inline-block py-1 px-3 rounded-full bg-terracotta-500/80 backdrop-blur-sm text-sm font-medium mb-6 animate-pulse">Platform Digitalisasi Budaya Indonesia</span>
+            <h1 class="font-serif text-4xl md:text-6xl lg:text-7xl font-bold mb-6 leading-tight text-shadow">Menghubungkan Tradisi <br/> dengan Teknologi</h1>
+            <p class="text-lg md:text-xl text-earth-100 mb-10 max-w-2xl mx-auto font-light">Kami membantu pengrajin lokal mendigitalisasi karya budaya otentik melalui visualisasi modern.</p>
+            <div class="flex flex-col sm:flex-row gap-4 justify-center flex-wrap">
+                <a href="#services" class="px-8 py-4 bg-terracotta-500 hover:bg-terracotta-600 text-white rounded-full font-semibold transition shadow-lg hover:shadow-xl transform hover:-translate-y-1">
+                    Jelajahi Layanan
+                </a>
+                
+                <!-- NEW MARKETPLACE BUTTON -->
+                <a href="https://zenkendra.github.io/Marketplace-RupaNusa/" target="_blank" class="px-8 py-4 bg-white text-terracotta-600 hover:bg-earth-100 rounded-full font-semibold transition shadow-lg hover:shadow-xl transform hover:-translate-y-1 flex items-center justify-center gap-2">
+                    <i class="fas fa-shopping-bag"></i> Jelajahi Marketplace
+                </a>
+
+                <a href="#about" class="px-8 py-4 bg-white/10 hover:bg-white/20 backdrop-blur-md border border-white/30 text-white rounded-full font-semibold transition">
+                    Pelajari Misi Kami
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- About Section -->
+    <section id="about" class="py-20 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
+        <div class="text-center mb-12">
+            <h2 class="font-serif text-3xl md:text-4xl font-bold text-earth-800 mb-4">Mengapa RupaNusa?</h2>
+            <div class="w-24 h-1 bg-terracotta-500 mx-auto rounded-full"></div>
+        </div>
+
+        <div class="flex flex-col items-center gap-10">
+            <!-- VIDEO CONTAINER (Centered & Responsive) -->
+            <div class="relative w-full max-w-4xl group">
+                <div class="absolute -inset-1 bg-gradient-to-r from-terracotta-500 to-nature-500 rounded-2xl opacity-50 blur group-hover:opacity-75 transition duration-200"></div>
+                <div class="relative w-full aspect-video bg-black rounded-2xl shadow-2xl overflow-hidden border-4 border-white">
+                    <!-- UPDATED: Mengembalikan Video ID ke 'MEyXaWab9Pw' sesuai permintaan -->
+                    <iframe 
+                        class="w-full h-full" 
+                        src="https://www.youtube.com/embed/MEyXaWab9Pw?rel=0&modestbranding=1" 
+                        title="RupaNusa Video" 
+                        frameborder="0" 
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                        allowfullscreen>
+                    </iframe>
+                </div>
+            </div>
+            
+            <!-- TEXT EXPLANATION (Below Video) -->
+            <div class="max-w-3xl text-center space-y-6">
+                <h3 class="text-2xl font-serif font-semibold text-earth-700">Jembatan Digital untuk Penjaga Budaya</h3>
+                <p class="text-earth-600 leading-relaxed text-lg">
+                    RupaNusa Studio hadir bukan sekadar sebagai toko, melainkan mitra strategis bagi para pengrajin. Kami melihat banyak karya luar biasa yang "tersembunyi" karena kendala teknologi.
+                </p>
+                <p class="text-earth-600 leading-relaxed text-lg">
+                    Melalui video di atas, Anda dapat melihat bagaimana kami menangani sisi digital—mulai dari proses kurasi, fotografi estetik, branding yang kuat, hingga penerapan sistem keaslian produk. Kami berdedikasi agar warisan Nusantara dapat bersaing di panggung global.
+                </p>
+                
+                <div class="flex flex-wrap justify-center gap-4 mt-4">
+                    <div class="flex items-center gap-2 bg-white px-4 py-2 rounded-full shadow-sm border border-earth-200">
+                        <i class="fas fa-check-circle text-nature-600"></i>
+                        <span class="text-earth-700 font-medium">Digitalisasi UMKM</span>
+                    </div>
+                    <div class="flex items-center gap-2 bg-white px-4 py-2 rounded-full shadow-sm border border-earth-200">
+                        <i class="fas fa-check-circle text-nature-600"></i>
+                        <span class="text-earth-700 font-medium">Pelestarian Filosofi</span>
+                    </div>
+                    <div class="flex items-center gap-2 bg-white px-4 py-2 rounded-full shadow-sm border border-earth-200">
+                        <i class="fas fa-check-circle text-nature-600"></i>
+                        <span class="text-earth-700 font-medium">Akses Pasar Global</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Services Section (UPDATED: Focus Hover Effect) -->
+    <section id="services" class="py-20 bg-earth-100 overflow-hidden">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-16">
+                <h2 class="font-serif text-3xl md:text-4xl font-bold text-earth-800 mb-4">Layanan Utama</h2>
+                <p class="text-earth-600 max-w-2xl mx-auto">Ekosistem lengkap untuk mentransformasi produk budaya. Arahkan kursor untuk melihat detail.</p>
+            </div>
+            
+            <!-- Container with custom class 'services-wrapper' for interaction logic -->
+            <div class="services-wrapper grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4 items-center justify-center p-4">
+                
+                <!-- Service 1 -->
+                <div class="service-card relative bg-white rounded-xl shadow-md text-center border border-earth-200 overflow-hidden h-96 flex flex-col justify-between p-6 cursor-pointer">
+                    <div class="flex-1 flex flex-col justify-center items-center">
+                        <div class="w-20 h-20 bg-earth-100 text-terracotta-600 rounded-full flex items-center justify-center mb-6">
+                            <i class="fas fa-camera text-3xl"></i>
+                        </div>
+                        <h3 class="font-serif font-bold text-xl text-earth-800 mb-2">Rupa Foto</h3>
+                        <p class="text-xs text-earth-500 uppercase tracking-widest font-semibold">Visualisasi</p>
+                    </div>
+                    
+                    <div class="bg-earth-50 -mx-6 -mb-6 p-6 border-t border-earth-200 text-left">
+                        <p class="text-sm text-earth-700 font-medium leading-snug mb-3">
+                            Fotografi produk studio mini dengan pencahayaan profesional.
+                        </p>
+                        <p class="text-xs text-terracotta-600 font-bold flex items-center gap-2">
+                            <i class="fas fa-lightbulb"></i> Contoh: Foto 360°, Flatlay Estetik
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Service 2 -->
+                <div class="service-card relative bg-white rounded-xl shadow-md text-center border border-earth-200 overflow-hidden h-96 flex flex-col justify-between p-6 cursor-pointer">
+                    <div class="flex-1 flex flex-col justify-center items-center">
+                        <div class="w-20 h-20 bg-earth-100 text-nature-600 rounded-full flex items-center justify-center mb-6">
+                            <i class="fas fa-book-open text-3xl"></i>
+                        </div>
+                        <h3 class="font-serif font-bold text-xl text-earth-800 mb-2">Rupa Katalog</h3>
+                        <p class="text-xs text-earth-500 uppercase tracking-widest font-semibold">Aksesibilitas</p>
+                    </div>
+                    
+                    <div class="bg-earth-50 -mx-6 -mb-6 p-6 border-t border-earth-200 text-left">
+                        <p class="text-sm text-earth-700 font-medium leading-snug mb-3">
+                            Katalog digital interaktif yang mudah diakses di smartphone.
+                        </p>
+                        <p class="text-xs text-nature-600 font-bold flex items-center gap-2">
+                            <i class="fas fa-lightbulb"></i> Contoh: Web Katalog, PDF Interaktif
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Service 3 -->
+                <div class="service-card relative bg-white rounded-xl shadow-md text-center border border-earth-200 overflow-hidden h-96 flex flex-col justify-between p-6 cursor-pointer scale-105 z-10 md:scale-100 md:z-auto"> <!-- Default highlighted on mobile for center effect if needed, but CSS handles hover -->
+                    <div class="flex-1 flex flex-col justify-center items-center">
+                        <div class="w-20 h-20 bg-earth-100 text-amber-600 rounded-full flex items-center justify-center mb-6">
+                            <i class="fas fa-feather-alt text-3xl"></i>
+                        </div>
+                        <h3 class="font-serif font-bold text-xl text-earth-800 mb-2">Rupa Cerita</h3>
+                        <p class="text-xs text-earth-500 uppercase tracking-widest font-semibold">Filosofi</p>
+                    </div>
+                    
+                    <div class="bg-earth-50 -mx-6 -mb-6 p-6 border-t border-earth-200 text-left">
+                        <p class="text-sm text-earth-700 font-medium leading-snug mb-3">
+                            Narasi sejarah & makna motif untuk nilai emosional.
+                        </p>
+                        <p class="text-xs text-amber-600 font-bold flex items-center gap-2">
+                            <i class="fas fa-lightbulb"></i> Contoh: Artikel Sejarah Motif Kawung
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Service 4 -->
+                <div class="service-card relative bg-white rounded-xl shadow-md text-center border border-earth-200 overflow-hidden h-96 flex flex-col justify-between p-6 cursor-pointer">
+                    <div class="flex-1 flex flex-col justify-center items-center">
+                        <div class="w-20 h-20 bg-earth-100 text-blue-600 rounded-full flex items-center justify-center mb-6">
+                            <i class="fas fa-qrcode text-3xl"></i>
+                        </div>
+                        <h3 class="font-serif font-bold text-xl text-earth-800 mb-2">Rupa QR</h3>
+                        <p class="text-xs text-earth-500 uppercase tracking-widest font-semibold">Otentikasi</p>
+                    </div>
+                    
+                    <div class="bg-earth-50 -mx-6 -mb-6 p-6 border-t border-earth-200 text-left">
+                        <p class="text-sm text-earth-700 font-medium leading-snug mb-3">
+                            Scan QR untuk bukti keaslian & video proses pembuatan.
+                        </p>
+                        <p class="text-xs text-blue-600 font-bold flex items-center gap-2">
+                            <i class="fas fa-lightbulb"></i> Contoh: Video Profil Pengrajin
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Service 5 -->
+                <div class="service-card relative bg-white rounded-xl shadow-md text-center border border-earth-200 overflow-hidden h-96 flex flex-col justify-between p-6 cursor-pointer">
+                    <div class="flex-1 flex flex-col justify-center items-center">
+                        <div class="w-20 h-20 bg-earth-100 text-purple-600 rounded-full flex items-center justify-center mb-6">
+                            <i class="fas fa-copyright text-3xl"></i>
+                        </div>
+                        <h3 class="font-serif font-bold text-xl text-earth-800 mb-2">Rupa Branding</h3>
+                        <p class="text-xs text-earth-500 uppercase tracking-widest font-semibold">Identitas</p>
+                    </div>
+                    
+                    <div class="bg-earth-50 -mx-6 -mb-6 p-6 border-t border-earth-200 text-left">
+                        <p class="text-sm text-earth-700 font-medium leading-snug mb-3">
+                            Desain Logo, Packaging & Pendampingan HKI.
+                        </p>
+                        <p class="text-xs text-purple-600 font-bold flex items-center gap-2">
+                            <i class="fas fa-lightbulb"></i> Contoh: Sertifikat Merek, Box Eksklusif
+                        </p>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- Paket Kemitraan Section -->
+    <section id="pricing" class="py-20 bg-white">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-16">
+                <h2 class="font-serif text-3xl md:text-4xl font-bold text-earth-800 mb-4">Paket Kemitraan</h2>
+                <p class="text-earth-600 max-w-2xl mx-auto">Pilih solusi digitalisasi yang paling sesuai dengan tahap perkembangan usaha Anda.</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8 items-start">
+                
+                <!-- Paket 1: Rintis -->
+                <div class="bg-earth-50 rounded-2xl p-8 border border-earth-200 shadow-lg hover:shadow-xl transition relative group h-full flex flex-col">
+                    <h3 class="font-serif text-2xl font-bold text-earth-800 mb-2">Paket Rintis</h3>
+                    <p class="text-earth-600 text-sm mb-6">Pondasi awal untuk Go Digital dengan tampilan profesional.</p>
+                    <div class="text-3xl font-bold text-terracotta-600 mb-6">Rp 150.000</div>
+                    
+                    <ul class="space-y-4 mb-8 text-earth-700 text-sm flex-grow text-left">
+                        <li class="flex items-start gap-3"><i class="fas fa-camera text-green-600 mt-1"></i> <span><strong>5 Foto Produk</strong> (Studio Mini)</span></li>
+                        <li class="flex items-start gap-3"><i class="fas fa-store text-green-600 mt-1"></i> <span>Listing Katalog Digital Basic</span></li>
+                        <li class="flex items-start gap-3"><i class="fas fa-tag text-green-600 mt-1"></i> <span>Deskripsi Produk Standar</span></li>
+                        <li class="flex items-start gap-3"><i class="fas fa-headset text-green-600 mt-1"></i> <span>Support Admin via WhatsApp</span></li>
+                    </ul>
+
+                    <button onclick="openPaymentModal('Paket Rintis', '150.000')" class="w-full py-3 border-2 border-earth-400 text-earth-800 font-bold rounded-full hover:bg-earth-400 hover:text-white transition mt-auto">
+                        Pilih Paket
+                    </button>
+                </div>
+
+                <!-- Paket 2: Tumbuh -->
+                <div class="bg-earth-800 rounded-2xl p-8 border border-earth-900 shadow-2xl relative transform md:-translate-y-4 flex flex-col">
+                    <div class="absolute top-0 right-0 bg-terracotta-500 text-white text-xs font-bold px-3 py-1 rounded-bl-lg rounded-tr-lg uppercase tracking-wide">Paling Laris</div>
+                    <h3 class="font-serif text-2xl font-bold text-white mb-2">Paket Tumbuh</h3>
+                    <p class="text-earth-200 text-sm mb-6">Meningkatkan nilai jual melalui cerita dan keaslian.</p>
+                    <div class="text-3xl font-bold text-white mb-6">Rp 350.000</div>
+                    
+                    <ul class="space-y-4 mb-8 text-earth-100 text-sm flex-grow text-left">
+                        <li class="flex items-start gap-3"><i class="fas fa-check-double text-terracotta-400 mt-1"></i> <span class="font-bold">Semua Fasilitas Paket Rintis</span></li>
+                        <li class="flex items-start gap-3"><i class="fas fa-feather-alt text-terracotta-400 mt-1"></i> <span>Penulisan <strong>Narasi Filosofi</strong> (Storytelling)</span></li>
+                        <li class="flex items-start gap-3"><i class="fas fa-qrcode text-terracotta-400 mt-1"></i> <span>Generator <strong>QR Code Keaslian</strong></span></li>
+                        <li class="flex items-start gap-3"><i class="fas fa-video text-terracotta-400 mt-1"></i> <span>1 Video Reels Pendek (15 Detik)</span></li>
+                        <li class="flex items-start gap-3"><i class="fas fa-certificate text-terracotta-400 mt-1"></i> <span>Badge "Mitra Terverifikasi"</span></li>
+                    </ul>
+
+                    <button onclick="openPaymentModal('Paket Tumbuh', '350.000')" class="w-full py-3 bg-terracotta-500 text-white font-bold rounded-full hover:bg-terracotta-600 transition shadow-lg hover:shadow-terracotta-500/50 mt-auto">
+                        Pilih Paket
+                    </button>
+                </div>
+
+                <!-- Paket 3: Ekspor -->
+                <div class="bg-earth-50 rounded-2xl p-8 border border-earth-200 shadow-lg hover:shadow-xl transition relative group h-full flex flex-col">
+                    <h3 class="font-serif text-2xl font-bold text-earth-800 mb-2">Paket Ekspor</h3>
+                    <p class="text-earth-600 text-sm mb-6">Solusi branding lengkap & legalitas untuk skala besar.</p>
+                    <div class="text-3xl font-bold text-earth-800 mb-6">Rp 750.000</div>
+                    
+                    <ul class="space-y-4 mb-8 text-earth-700 text-sm flex-grow text-left">
+                        <li class="flex items-start gap-3"><i class="fas fa-check-double text-green-600 mt-1"></i> <span class="font-bold">Semua Fasilitas Paket Tumbuh</span></li>
+                        <li class="flex items-start gap-3"><i class="fas fa-paint-brush text-green-600 mt-1"></i> <span>Desain <strong>Logo & Packaging</strong></span></li>
+                        <li class="flex items-start gap-3"><i class="fas fa-copyright text-green-600 mt-1"></i> <span>Pendampingan Pendaftaran <strong>HKI/Merek</strong></span></li>
+                        <li class="flex items-start gap-3"><i class="fas fa-crown text-green-600 mt-1"></i> <span>Prioritas Listing (Featured Page)</span></li>
+                        <li class="flex items-start gap-3"><i class="fas fa-chart-line text-green-600 mt-1"></i> <span>Sesi Konsultasi Bisnis 1-on-1</span></li>
+                    </ul>
+
+                    <button onclick="openPaymentModal('Paket Ekspor', '750.000')" class="w-full py-3 border-2 border-earth-400 text-earth-800 font-bold rounded-full hover:bg-earth-400 hover:text-white transition mt-auto">
+                        Pilih Paket
+                    </button>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- Testimonials Section (Infinite Marquee) -->
+    <section id="testimonials" class="py-20 bg-earth-50 overflow-hidden">
+        <div class="max-w-7xl mx-auto px-4 mb-10 text-center">
+            <h2 class="font-serif text-3xl md:text-4xl font-bold text-earth-800 mb-4">Kisah Sukses Mitra</h2>
+            <p class="text-earth-600">Dengar langsung bagaimana RupaNusa membantu transformasi UMKM mereka.</p>
+        </div>
+        
+        <!-- Filter Buttons -->
+        <div class="flex flex-wrap justify-center gap-4 mb-12 px-4">
+            <button onclick="filterTestimonials('all')" class="filter-btn active px-6 py-2 rounded-full border border-terracotta-500 bg-terracotta-500 text-white hover:bg-terracotta-600 transition" data-filter="all">Semua</button>
+            <button onclick="filterTestimonials('Rintis')" class="filter-btn px-6 py-2 rounded-full border border-earth-300 text-earth-600 hover:border-terracotta-500 hover:text-terracotta-500 transition" data-filter="Rintis">Paket Rintis</button>
+            <button onclick="filterTestimonials('Tumbuh')" class="filter-btn px-6 py-2 rounded-full border border-earth-300 text-earth-600 hover:border-terracotta-500 hover:text-terracotta-500 transition" data-filter="Tumbuh">Paket Tumbuh</button>
+            <button onclick="filterTestimonials('Ekspor')" class="filter-btn px-6 py-2 rounded-full border border-earth-300 text-earth-600 hover:border-terracotta-500 hover:text-terracotta-500 transition" data-filter="Ekspor">Paket Ekspor</button>
+        </div>
+        
+        <!-- Marquee Container (Full Width) -->
+        <div class="marquee-container w-full py-4">
+            <!-- Track: Ini yang bergerak -->
+            <div id="testimonial-track" class="marquee-track px-4">
+                <!-- Items akan diinject di sini oleh JS -->
+            </div>
+        </div>
+    </section>
+
+    <!-- Team Section -->
+    <section id="team" class="py-20 bg-earth-800 text-white">
+        <div class="max-w-7xl mx-auto px-4 text-center">
+            <h2 class="font-serif text-3xl font-bold mb-4">Tim Kami</h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-10 mt-10">
+                <div class="group">
+                    <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Novelita&backgroundColor=c0aede" alt="Novelita" class="w-32 h-32 mx-auto rounded-full border-4 border-terracotta-500 mb-4">
+                    <h3 class="text-xl font-bold">Novelita Oktafiar</h3><p class="text-sm text-terracotta-400">Co-Founder & Finance</p>
+                </div>
+                <div class="group">
+                    <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Jonathan&backgroundColor=b6e3f4" alt="Jonathan" class="w-32 h-32 mx-auto rounded-full border-4 border-terracotta-500 mb-4">
+                    <h3 class="text-xl font-bold">Jonathan Adhyaksa</h3><p class="text-sm text-terracotta-400">Co-Founder & Tech Lead</p>
+                </div>
+                <div class="group">
+                    <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Sharyn&backgroundColor=ffdfbf" alt="Sharyn" class="w-32 h-32 mx-auto rounded-full border-4 border-terracotta-500 mb-4">
+                    <h3 class="text-xl font-bold">Sharyn Nadine</h3><p class="text-sm text-terracotta-400">Co-Founder & Creative</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer class="bg-earth-900 border-t border-earth-800 pt-16 pb-8">
+        <div class="max-w-7xl mx-auto px-4 text-center">
+            <span class="font-serif font-bold text-2xl text-white">RupaNusa Studio</span>
+            <p class="text-earth-400 mt-2">Digitalisasi Warisan Nusantara</p>
+            <p class="text-earth-600 text-sm mt-8">&copy; 2025 RupaNusa Studio. BINUS University.</p>
+        </div>
+    </footer>
+
+    <!-- DYNAMIC MULTI-PURPOSE MODAL -->
+    <div id="universalModal" class="fixed inset-0 z-[100] hidden overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+        <div class="fixed inset-0 bg-earth-900 bg-opacity-75 transition-opacity backdrop-blur-sm" onclick="closeModal()"></div>
+
+        <div class="flex min-h-full items-center justify-center p-4 text-center sm:p-0">
+            <div class="relative transform overflow-hidden rounded-lg bg-white text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-lg border-t-4 border-terracotta-500">
+                
+                <!-- CONTENT CONTAINER -->
+                <div id="modal-content" class="bg-white px-4 pb-4 pt-5 sm:p-6 sm:pb-4">
+                    <div class="sm:flex sm:items-start">
+                        <div id="modal-icon-bg" class="mx-auto flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full bg-terracotta-100 sm:mx-0 sm:h-10 sm:w-10">
+                            <i id="modal-icon" class="fas fa-handshake text-terracotta-600"></i>
+                        </div>
+                        <div class="mt-3 text-center sm:ml-4 sm:mt-0 sm:text-left w-full">
+                            <h3 class="text-xl font-serif font-semibold leading-6 text-gray-900" id="modal-title">Judul Modal</h3>
+                            
+                            <!-- Dynamic Body Content -->
+                            <div class="mt-4" id="modal-body">
+                                <!-- Isi akan di-inject lewat JS -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- LOADING/SUCCESS ANIMATION CONTAINER (Hidden by default) -->
+                <div id="loading-state" class="hidden bg-white px-4 pb-4 pt-5 sm:p-6 sm:pb-4 h-64 flex flex-col items-center justify-center">
+                    <!-- Loading Spinner -->
+                    <div id="spinner" class="loader mb-4"></div>
+                    <p id="loading-text" class="text-earth-600 font-medium animate-pulse">Memverifikasi Pembayaran...</p>
+                    
+                    <!-- Success Checkmark (Hidden initially) -->
+                    <div id="success-anim" class="hidden flex flex-col items-center">
+                        <div class="wrapper"> 
+                             <svg class="checkmark" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 52 52"> 
+                                 <circle class="checkmark__circle" cx="26" cy="26" r="25" fill="none"/> 
+                                 <path class="checkmark__check" fill="none" d="M14.1 27.2l7.1 7.2 16.7-16.8"/> 
+                             </svg> 
+                        </div>
+                        <p class="text-green-600 font-bold mt-4 text-lg">Pembayaran Terkonfirmasi!</p>
+                        <p class="text-sm text-gray-500">Mengalihkan ke WhatsApp...</p>
+                    </div>
+                </div>
+
+                <!-- ACTIONS FOOTER -->
+                <div id="modal-footer" class="bg-gray-50 px-4 py-3 sm:flex sm:flex-row-reverse sm:px-6">
+                    <button type="button" id="primary-btn" class="inline-flex w-full justify-center rounded-md bg-green-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-green-500 sm:ml-3 sm:w-auto items-center gap-2 transition">
+                        Action
+                    </button>
+                    <button type="button" onclick="closeModal()" class="mt-3 inline-flex w-full justify-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 sm:mt-0 sm:w-auto transition">
+                        Batal
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- JAVASCRIPT LOGIC -->
+    <script>
+        const navbar = document.getElementById('navbar');
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 50) {
+                navbar.classList.add('bg-white', 'shadow-md', 'py-2');
+                navbar.classList.remove('bg-transparent', 'py-4');
+            } else {
+                navbar.classList.remove('bg-white', 'shadow-md', 'py-2');
+                navbar.classList.add('bg-transparent', 'py-4');
+            }
+        });
+
+        function toggleMobileMenu() {
+            document.getElementById('mobile-menu').classList.toggle('hidden');
+        }
+
+        // --- TESTIMONIAL LOGIC ---
+        const testimonials = [
+            { 
+                id: 1, name: "Bu Siti Aminah", business: "Keripik Tempe Mbah Uti", package: "Rintis", 
+                quote: "Dulu foto produk saya gelap. Setelah pakai Paket Rintis, foto jadi terang dan profesional. Penjualan di WA naik drastis!", 
+                avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Siti&backgroundColor=ffdfbf" 
+            },
+            { 
+                id: 2, name: "Kak Bayu Prasetyo", business: "Tenun Troso Heritage", package: "Tumbuh", 
+                quote: "Narasi filosofi yang dibuat RupaNusa bikin pembeli makin menghargai kain tenun saya. QR Code-nya bikin produk eksklusif.", 
+                avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Bayu&backgroundColor=b6e3f4" 
+            },
+            { 
+                id: 3, name: "Pak Made Suardana", business: "Anyaman Bali Art", package: "Ekspor", 
+                quote: "RupaNusa membantu pendaftaran merek dan logo baru. Sekarang saya percaya diri kirim sampel ke buyer di Jepang.", 
+                avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Made&backgroundColor=c0aede" 
+            },
+            { 
+                id: 4, name: "Ibu Ratna Sari", business: "Batik Tulis Kencana", package: "Tumbuh", 
+                quote: "Video reels pendeknya sangat membantu promosi di Instagram. Admin RupaNusa ramah banget ngajarin cara posting.", 
+                avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Ratna&backgroundColor=ffdfbf" 
+            },
+            { 
+                id: 5, name: "Kang Asep", business: "Wayang Golek Sunda", package: "Rintis", 
+                quote: "Modal terjangkau tapi hasilnya nggak main-main. Katalog digitalnya rapi, pembeli jadi gampang pilih model wayang.", 
+                avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Asep&backgroundColor=b6e3f4" 
+            },
+            { 
+                id: 6, name: "Ibu Ningsih", business: "Gerabah Kasongan", package: "Ekspor", 
+                quote: "Konsultasi bisnisnya membuka wawasan saya soal ekspor. Terima kasih tim RupaNusa sudah membimbing dari nol.", 
+                avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Ningsih&backgroundColor=c0aede" 
+            },
+            { 
+                id: 7, name: "Pak Budi Santoso", business: "Perak Kotagede Silver", package: "Tumbuh", 
+                quote: "Sertifikat keaslian via QR Code membuat pelanggan luar kota lebih percaya beli perhiasan perak saya secara online.", 
+                avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Budi&backgroundColor=ffdfbf" 
+            },
+            { 
+                id: 8, name: "Ibu Dayu Wulandari", business: "Songket Lombok Asli", package: "Ekspor", 
+                quote: "Desain packaging dari RupaNusa sangat elegan. Produk saya jadi bisa masuk ke butik-butik hotel bintang lima.", 
+                avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Dayu&backgroundColor=b6e3f4" 
+            },
+            { 
+                id: 9, name: "Kak Sarah", business: "Macrame Modern Indo", package: "Rintis", 
+                quote: "Sebagai pemula, Paket Rintis sangat pas di kantong. Foto produknya estetik banget, cocok buat feeds Instagram.", 
+                avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Sarah&backgroundColor=c0aede" 
+            },
+            { 
+                id: 10, name: "Pak Junaedi", business: "Ukiran Kayu Jepara", package: "Ekspor", 
+                quote: "Bantuan urus HKI sangat berharga. Saya tidak takut lagi desain ukiran original saya ditiru kompetitor.", 
+                avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Junaedi&backgroundColor=ffdfbf" 
+            },
+            { 
+                id: 11, name: "Ibu Larasati", business: "Jamu Herbal Solo", package: "Rintis", 
+                quote: "Tampilan katalog di web bikin pelanggan mudah pesan jamu botolan. Omzet bulanan naik 40%!", 
+                avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Laras&backgroundColor=b6e3f4" 
+            },
+            { 
+                id: 12, name: "Mas Dimas", business: "Sepatu Kulit Garut", package: "Tumbuh", 
+                quote: "Storytelling tentang proses penyamakan kulit membuat nilai jual sepatu saya naik. Pelanggan suka bacanya.", 
+                avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Dimas&backgroundColor=c0aede" 
+            },
+            { 
+                id: 13, name: "Kak Rina", business: "Batik Eco-Print", package: "Tumbuh", 
+                quote: "Video proses pembuatan eco-print yang dibuat RupaNusa viral di TikTok! Pesanan membludak sampai waiting list.", 
+                avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Rina&backgroundColor=ffdfbf" 
+            },
+            { 
+                id: 14, name: "Pak Wayan", business: "Topeng Bali Sacred", package: "Ekspor", 
+                quote: "Saya gaptek, tapi tim RupaNusa sabar banget. Sekarang topeng karya saya sudah dikirim ke kolektor di Eropa.", 
+                avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Wayan&backgroundColor=b6e3f4" 
+            },
+            { 
+                id: 15, name: "Ibu Melati", business: "Sasirangan Banjar", package: "Rintis", 
+                quote: "Foto kain sasirangan saya jadi kelihatan detail motifnya. Sangat membantu jualan di grup WhatsApp ibu-ibu.", 
+                avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Melati&backgroundColor=c0aede" 
+            },
+            { 
+                id: 16, name: "Mas Tio", business: "Gitar Akustik Bandung", package: "Tumbuh", 
+                quote: "QR Code yang link ke video cek sound gitar adalah fitur jenius! Pembeli jadi yakin suaranya bagus.", 
+                avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Tio&backgroundColor=ffdfbf" 
+            },
+            { 
+                id: 17, name: "Kak Gita", business: "Dompet Tikar Pandan", package: "Rintis", 
+                quote: "Biaya terjangkau buat mahasiswa yang baru mulai usaha kriya. Hasil fotonya jauh lebih bagus dari foto HP saya.", 
+                avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Gita&backgroundColor=b6e3f4" 
+            },
+            { 
+                id: 18, name: "Pak Ruslan", business: "Kain Ulos Batak", package: "Ekspor", 
+                quote: "Branding kit yang dibuatkan sangat mewakili karakter Batak yang kuat tapi modern. Sangat puas!", 
+                avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Ruslan&backgroundColor=c0aede" 
+            },
+            { 
+                id: 19, name: "Ibu Kartini", business: "Kebaya Bordir Tasik", package: "Tumbuh", 
+                quote: "Badge 'Mitra Terverifikasi' bikin pelanggan baru langsung percaya transfer duluan. Terima kasih RupaNusa.", 
+                avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Kartini&backgroundColor=ffdfbf" 
+            },
+            { 
+                id: 20, name: "Mas Hendra", business: "Wayang Kulit Yogya", package: "Ekspor", 
+                quote: "Sekarang wayang saya punya sertifikat digital. Kolektor jadi tidak ragu bayar mahal karena keaslian terjamin.", 
+                avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Hendra&backgroundColor=b6e3f4" 
+            },
+            { 
+                id: 21, name: "Kak Nia", business: "Tas Goni Daur Ulang", package: "Rintis", 
+                quote: "Suka banget sama layout katalog onlinenya. Simpel tapi produk kelihatan mahal. Recommended buat UMKM!", 
+                avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Nia&backgroundColor=c0aede" 
+            }
+        ];
+
+        function renderTestimonials(filterPackage) {
+            const track = document.getElementById('testimonial-track');
+            track.innerHTML = '';
+            
+            // 1. Filter Data
+            const filtered = filterPackage === 'all' 
+                ? testimonials 
+                : testimonials.filter(t => t.package === filterPackage);
+            
+            // 2. Duplicate Data to create Seamless Loop (Double the content)
+            // Ini trik agar saat animasi scroll ke kiri, tidak ada gap kosong
+            const displayData = [...filtered, ...filtered]; 
+            
+            // 3. Render Items
+            displayData.forEach(t => {
+                let badgeColor = '';
+                if(t.package === 'Rintis') badgeColor = 'bg-green-600';
+                else if(t.package === 'Tumbuh') badgeColor = 'bg-terracotta-500';
+                else badgeColor = 'bg-purple-600';
+
+                const card = document.createElement('div');
+                // Added min-w-[20rem] to prevent shrinking in flex container
+                card.className = 'bg-white rounded-xl shadow-lg p-8 border border-earth-200 fade-in hover:shadow-xl transition relative overflow-hidden flex-shrink-0 w-80 md:w-96 whitespace-normal';
+                card.innerHTML = `
+                    <div class="absolute top-0 right-0 ${badgeColor} text-white text-xs font-bold px-3 py-1 rounded-bl-lg uppercase tracking-wide">
+                        Paket ${t.package}
+                    </div>
+                    <div class="flex items-center gap-4 mb-6">
+                        <img src="${t.avatar}" alt="${t.name}" class="w-16 h-16 rounded-full border-2 border-earth-200">
+                        <div>
+                            <h3 class="font-serif font-bold text-earth-800 text-lg">${t.name}</h3>
+                            <p class="text-sm text-terracotta-600 font-medium">${t.business}</p>
+                        </div>
+                    </div>
+                    <div class="relative">
+                        <i class="fas fa-quote-left text-earth-200 text-4xl absolute -top-2 -left-2 z-0"></i>
+                        <p class="text-earth-600 italic relative z-10 pl-6 leading-relaxed text-sm">"${t.quote}"</p>
+                    </div>
+                `;
+                track.appendChild(card);
+            });
+        }
+
+        function filterTestimonials(pkg) {
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                const isSelected = btn.dataset.filter === pkg;
+                btn.className = `filter-btn px-6 py-2 rounded-full border transition ${isSelected ? 'bg-terracotta-500 text-white border-terracotta-500' : 'bg-transparent text-earth-600 border-earth-300'}`;
+            });
+            renderTestimonials(pkg);
+        }
+        
+        // Initial Render
+        renderTestimonials('all');
+
+        // --- NEW MODAL & PAYMENT LOGIC ---
+        const modal = document.getElementById('universalModal');
+        const modalTitle = document.getElementById('modal-title');
+        const modalBody = document.getElementById('modal-body');
+        const primaryBtn = document.getElementById('primary-btn');
+        const modalIcon = document.getElementById('modal-icon');
+        const modalIconBg = document.getElementById('modal-icon-bg');
+        
+        const modalContent = document.getElementById('modal-content');
+        const modalFooter = document.getElementById('modal-footer');
+        const loadingState = document.getElementById('loading-state');
+
+        // 1. FUNGSI UNTUK TOMBOL "DAFTAR MITRA" (NAVBAR) - Konsultasi Only
+        function openConsultation() {
+            resetModalState();
+            modal.classList.remove('hidden');
+
+            // Setup UI Konsultasi
+            modalTitle.innerText = "Konsultasi Kemitraan";
+            modalIcon.className = "fas fa-comments text-nature-600";
+            modalIconBg.className = "mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-nature-100";
+            
+            modalBody.innerHTML = `
+                <p class="text-sm text-gray-500 mb-4">
+                    Tertarik bergabung tapi masih bingung paket mana yang cocok? 
+                    Silakan diskusikan kebutuhan digitalisasi usaha Anda langsung dengan Admin kami.
+                </p>
+                <div class="bg-earth-50 p-4 rounded-lg border border-earth-200">
+                    <p class="text-sm font-medium text-earth-800">Admin siap membantu Senin - Sabtu (09.00 - 17.00 WIB)</p>
+                </div>
+            `;
+
+            primaryBtn.innerText = "Chat Admin via WA";
+            primaryBtn.className = "inline-flex w-full justify-center rounded-md bg-green-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-green-500 sm:ml-3 sm:w-auto items-center gap-2 transition";
+            primaryBtn.onclick = function() {
+                const msg = "Halo Admin RupaNusa! Saya tertarik untuk mendaftar mitra namun ingin konsultasi terlebih dahulu mengenai paket yang cocok.";
+                window.open(`https://wa.me/6281331023325?text=${encodeURIComponent(msg)}`, '_blank');
+                closeModal();
+            };
+        }
+
+        // 2. FUNGSI UNTUK TOMBOL "PILIH PAKET" - Bayar + Nominal + Animasi
+        function openPaymentModal(packageName, price) {
+            resetModalState();
+            modal.classList.remove('hidden');
+
+            // Setup UI Pembayaran
+            modalTitle.innerText = `Pembayaran ${packageName}`;
+            modalIcon.className = "fas fa-credit-card text-terracotta-600";
+            modalIconBg.className = "mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-terracotta-100";
+
+            modalBody.innerHTML = `
+                <p class="text-sm text-gray-500 mb-4">
+                    Silakan transfer sesuai nominal di bawah ini untuk mengaktifkan paket Anda.
+                </p>
+                
+                <!-- Nominal Box -->
+                <div class="text-center mb-6">
+                    <p class="text-xs font-bold text-gray-500 uppercase tracking-wide mb-1">Total Tagihan</p>
+                    <div class="text-3xl font-bold text-terracotta-600">Rp ${price}</div>
+                </div>
+
+                <!-- Bank Box -->
+                <div class="bg-earth-50 p-4 rounded-lg border border-earth-200 mb-4 text-left">
+                    <div class="flex items-center gap-3 mb-2">
+                        <img src="https://upload.wikimedia.org/wikipedia/commons/6/68/BANK_BRI_logo.svg" alt="BRI" class="h-6">
+                        <div>
+                            <p class="text-xs text-gray-500">Bank Rakyat Indonesia</p>
+                            <p class="font-bold text-gray-800">6141 0100 4565 509</p>
+                        </div>
+                    </div>
+                    <p class="text-xs text-gray-500 mt-1">a.n. NOVELITA OKTAFIAR</p>
+                </div>
+
+                <!-- QR Code Container -->
+                <div class="flex flex-col items-center justify-center mt-4">
+                    <p class="text-xs text-center text-gray-400 mb-2">Scan untuk Salin No. Rek</p>
+                    <div id="qrcode" class="p-2 bg-white border border-gray-200 rounded shadow-sm"></div>
+                </div>
+            `;
+
+            // Generate QR
+            setTimeout(() => {
+                new QRCode(document.getElementById("qrcode"), {
+                    text: "614101004565509",
+                    width: 120, height: 120,
+                    colorDark : "#2b1c15", colorLight : "#ffffff",
+                    correctLevel : QRCode.CorrectLevel.H
+                });
+            }, 100);
+
+            primaryBtn.innerText = "Saya Sudah Transfer";
+            primaryBtn.className = "inline-flex w-full justify-center rounded-md bg-terracotta-500 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-terracotta-600 sm:ml-3 sm:w-auto items-center gap-2 transition";
+            
+            // Trigger Animasi saat diklik
+            primaryBtn.onclick = function() {
+                processPaymentAnimation(packageName);
+            };
+        }
+
+        // 3. LOGIKA ANIMASI PEMBAYARAN
+        function processPaymentAnimation(packageName) {
+            // Sembunyikan konten modal utama
+            modalContent.classList.add('hidden');
+            modalFooter.classList.add('hidden');
+            
+            // Tampilkan Loading State
+            loadingState.classList.remove('hidden');
+            
+            // Step 1: Loading Spinner (2 Detik)
+            setTimeout(() => {
+                document.getElementById('spinner').classList.add('hidden');
+                document.getElementById('loading-text').classList.add('hidden');
+                
+                // Step 2: Show Success Checkmark
+                const successDiv = document.getElementById('success-anim');
+                successDiv.classList.remove('hidden');
+                
+                // Step 3: Redirect ke WA setelah 1.5 detik sukses
+                setTimeout(() => {
+                    const msg = `Halo Tim RupaNusa! Saya sudah mendaftar *${packageName}* dan melakukan pembayaran ke rekening BRI a.n. NOVELITA OKTAFIAR.\nMohon dicek dan diproses ya. Terima kasih!`;
+                    window.open(`https://wa.me/6281331023325?text=${encodeURIComponent(msg)}`, '_blank');
+                    closeModal();
+                }, 2000);
+
+            }, 2000);
+        }
+
+        function resetModalState() {
+            modalContent.classList.remove('hidden');
+            modalFooter.classList.remove('hidden');
+            loadingState.classList.add('hidden');
+            document.getElementById('spinner').classList.remove('hidden');
+            document.getElementById('loading-text').classList.remove('hidden');
+            document.getElementById('success-anim').classList.add('hidden');
+        }
+
+        function closeModal() {
+            modal.classList.add('hidden');
+        }
+
+        document.addEventListener('keydown', (e) => { if(e.key === "Escape") closeModal(); });
+
+    </script>
+</body>
+</html>
