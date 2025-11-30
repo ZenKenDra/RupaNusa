@@ -393,7 +393,7 @@
                 </div>
 
                 <!-- Paket 2: Tumbuh -->
-                <div class="bg-earth-800 rounded-2xl p-8 border border-earth-900 shadow-2xl relative transform md:-translate-y-4 flex flex-col">
+                <div class="bg-earth-800 rounded-2xl p-8 border border-earth-900 shadow-2xl relative transform md:-translate-y-4 flex flex-col z-10">
                     <div class="absolute top-0 right-0 bg-terracotta-500 text-white text-xs font-bold px-3 py-1 rounded-bl-lg rounded-tr-lg uppercase tracking-wide">Paling Laris</div>
                     <h3 class="font-serif text-2xl font-bold text-white mb-2">Paket Tumbuh</h3>
                     <p class="text-earth-200 text-sm mb-6">Meningkatkan nilai jual melalui cerita dan keaslian.</p>
@@ -412,21 +412,27 @@
                     </button>
                 </div>
 
-                <!-- Paket 3: Ekspor -->
-                <div class="bg-earth-50 rounded-2xl p-8 border border-earth-200 shadow-lg hover:shadow-xl transition relative group h-full flex flex-col">
-                    <h3 class="font-serif text-2xl font-bold text-earth-800 mb-2">Paket Ekspor</h3>
+                <!-- Paket 3: Ekspor (UPDATED: Premium Look) -->
+                <div class="bg-gradient-to-b from-white to-earth-50 rounded-2xl p-8 border-2 border-earth-300 shadow-2xl relative transform md:-translate-y-4 group h-full flex flex-col hover:border-earth-600 transition duration-300">
+                    <!-- Premium Badge -->
+                    <div class="absolute top-0 right-0 bg-earth-900 text-white text-xs font-bold px-4 py-1.5 rounded-bl-xl rounded-tr-lg uppercase tracking-wide flex items-center gap-2 shadow-md">
+                        <i class="fas fa-crown text-yellow-500 animate-pulse"></i> Paling Profesional
+                    </div>
+                    
+                    <h3 class="font-serif text-2xl font-bold text-earth-900 mb-2">Paket Ekspor</h3>
                     <p class="text-earth-600 text-sm mb-6">Solusi branding lengkap & legalitas untuk skala besar.</p>
-                    <div class="text-3xl font-bold text-earth-800 mb-6">Rp 750.000</div>
+                    <div class="text-3xl font-bold text-earth-900 mb-6">Rp 750.000</div>
                     
                     <ul class="space-y-4 mb-8 text-earth-700 text-sm flex-grow text-left">
                         <li class="flex items-start gap-3"><i class="fas fa-check-double text-green-600 mt-1"></i> <span class="font-bold">Semua Fasilitas Paket Tumbuh</span></li>
                         <li class="flex items-start gap-3"><i class="fas fa-paint-brush text-green-600 mt-1"></i> <span>Desain <strong>Logo & Packaging</strong></span></li>
                         <li class="flex items-start gap-3"><i class="fas fa-copyright text-green-600 mt-1"></i> <span>Pendampingan Pendaftaran <strong>HKI/Merek</strong></span></li>
-                        <li class="flex items-start gap-3"><i class="fas fa-crown text-green-600 mt-1"></i> <span>Prioritas Listing (Featured Page)</span></li>
+                        <li class="flex items-start gap-3"><i class="fas fa-crown text-yellow-600 mt-1"></i> <span>Prioritas Listing (Featured Page)</span></li>
                         <li class="flex items-start gap-3"><i class="fas fa-chart-line text-green-600 mt-1"></i> <span>Sesi Konsultasi Bisnis 1-on-1</span></li>
                     </ul>
 
-                    <button onclick="openPaymentModal('Paket Ekspor', '750.000')" class="w-full py-3 border-2 border-earth-400 text-earth-800 font-bold rounded-full hover:bg-earth-400 hover:text-white transition mt-auto">
+                    <!-- Premium Button Style -->
+                    <button onclick="openPaymentModal('Paket Ekspor', '750.000')" class="w-full py-3 border-2 border-earth-800 bg-earth-800 text-white font-bold rounded-full hover:bg-white hover:text-earth-800 transition mt-auto shadow-lg">
                         Pilih Paket
                     </button>
                 </div>
